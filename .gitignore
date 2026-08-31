@@ -1,0 +1,6 @@
+*.csv
+*.db
+*.sqlite
+*.xlsx
+!excel/.gitkeep
+.DS_Store
