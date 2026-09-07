@@ -3,5 +3,6 @@
 *.sqlite
 *.xlsx
 !powerbi/data/*.csv
+!excel/*.xlsx
 !excel/.gitkeep
 .DS_Store
