@@ -33,8 +33,8 @@ Target finish: **24 Sep 2026** (4 weeks from 27 Aug).
 - [x] VS Code + SQLite extension, SQLite db built and verified
 - [x] Git repo + GitHub
 - [x] SQL — cleaning, joins, per-type lift calculations (`/sql`, see Results below)
-- [ ] Power BI scorecard dashboard
-- [ ] Excel pivot summary
+- [x] Excel pivot summary (`/excel`)
+- [ ] Power BI scorecard dashboard (data + DAX ready in `/powerbi`, build in progress)
 - [ ] Written findings + polish
 
 ## What gets built
@@ -48,17 +48,33 @@ Target finish: **24 Sep 2026** (4 weeks from 27 Aug).
 ## Notes on the open questions
 
 - **Claude Code in VS Code:** yes, there's an official Claude Code VS Code extension (code.claude.com/docs/en/vs-code) — install it and it runs alongside/inside the editor.
-- **GitHub repo:** this scaffold is the starting point. Actually creating and pushing to a GitHub repo needs your own git/GitHub auth, which isn't available from this sandboxed session — see the setup commands below.
 - **Live dashboard — Power BI vs. a Claude-built artifact:** this type of role typically names Power BI explicitly as a required, hands-on skill. A Claude/HTML artifact doesn't demonstrate that skill and shouldn't replace the Power BI deliverable. Power BI Desktop's free "Publish to web" (or a Power BI service embed) gives a shareable public link for the portfolio, which solves the "linkable" requirement without needing a substitute tool. An HTML/artifact version could be a nice-to-have companion later, but it's not a substitute for Power BI here.
 
-## Local setup
+## Setting up on a new machine
+
+Cloning the repo gets you everything **except** `sql/walmart.db` and the raw Kaggle CSVs —
+those are gitignored (competition rules don't allow redistributing the raw data). Everything
+that's already built from them — the SQL files, `docs/methodology.md`, the Power BI CSVs in
+`powerbi/data/`, and `excel/trade_investment_scorecard.xlsx` — comes down with the clone and
+needs nothing further.
+
+You only need the steps below if you want to **run the `.sql` files yourself** against a live
+database (e.g. to re-verify a number, or extend the analysis).
 
 ```bash
+git clone https://github.com/michaelvallen14/markdown-effectiveness-scorecard.git
 cd markdown-effectiveness-scorecard
-git init
-git add .
-git commit -m "Initial project scaffold"
-git remote add origin <your-new-github-repo-url>
-git branch -M main
-git push -u origin main
 ```
+
+1. **Download the raw data.** Go to the [Kaggle competition data page](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting/data)
+   (Kaggle account required, accept the competition rules), download `train.csv.zip`,
+   `features.csv.zip`, `stores.csv`, unzip, and place all three CSVs in a new `data_raw/` folder
+   at the project root (gitignored, so this step is manual on every machine).
+2. **Install the one dependency:** `pip install pandas`
+3. **Build the database:** `python scripts/build_db.py` — reads the three CSVs, writes
+   `sql/walmart.db`, indexes it. Takes under a minute.
+4. **Create the analytical views (run once):**
+   `sqlite3 sql/walmart.db < sql/01_create_views.sql`
+5. From here, `sql/00` and `sql/02`–`06` can be run directly against `sql/walmart.db` — via the
+   SQLTools VS Code extension (Add Connection → SQLite → browse to `sql/walmart.db`), the
+   `sqlite3` CLI, or any SQLite client.
