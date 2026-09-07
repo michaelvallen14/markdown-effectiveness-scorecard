@@ -21,6 +21,10 @@ def main():
     stores.to_sql("stores", conn, if_exists="replace", index=False)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_train_store_date ON train(Store, Date)")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_features_store_date ON features(Store, Date)")
+    # The lift SQL joins train to itself on (Store, Dept, Date) to pull the
+    # prior-year baseline week. Without this the self-join degrades to a scan
+    # per row and the scorecard queries take minutes instead of seconds.
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_train_store_dept_date ON train(Store, Dept, Date)")
     conn.commit()
     conn.close()
     print(f"Built {DB} — train:{len(train)} features:{len(features)} stores:{len(stores)}")
